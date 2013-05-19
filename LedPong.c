@@ -1,4 +1,6 @@
 
+//#define FCPU 16000000UL
+
 #include "LedPong.h"
 
 
@@ -16,11 +18,14 @@ ISR(TIMER0_OVF_vect)
 
     TCNT0 = 0;
 */
-    DBUGON;
+    cli();
+//    DBUGON;
     drawScreen();
+    sei();
     //_delay_ms(10);
-    DBUGOFF;
+//    DBUGOFF;
 
+//TCNT0 = 210;
     //TCNT0 = 200;
 }
 
@@ -28,6 +33,13 @@ ISR(TIMER1_OVF_vect)
 {
 //    TCNT1H = speed_table[scroll_speed];
 //    TCNT1L = 0;
+    DBUGON;
+    drawScreen();
+    //TCNT1H = 238;
+    //TCNT1L = 250;
+    //delay_us(1000);
+
+    DBUGOFF;
 }
 
 ISR(TIMER2_OVF_vect)
@@ -112,7 +124,7 @@ inline void drawScreen() {
                 clearScreen();
             }
 
-            _delay_ms(10);
+            _delay_us(400);
             PORTB = 0;
         }
     }
@@ -124,18 +136,20 @@ int main(void) {
 
     char a, t, x, y = 0;
 
+/*
     // Timer 0 configuration : Print message
     TIMSK |= (1<<TOIE0);
-    TCCR0 |= ((1<<CS02) | (0<<CS01) | (1<<CS00));
+    TCCR0 = ((1<<CS02) | (0<<CS01) | (1<<CS00));
+    TCCR0 = 0;
     TCNT0 = 0;
-/*
+*/
     // Timer 1 configuration : Scroll message
-    TIMSK1 |= (1<<TOIE1);
+    TIMSK |= (1<<TOIE1);
     TCCR1A = 0;
-    TCCR1B |= ((0<<CS12) | (1<<CS11) | (1<<CS10));
-    TCCR1C  = 0;
+    TCCR1B |= ((0<<CS12) | (1<<CS11) | (0<<CS10));
+//    TCCR1C  = 0;
     TCNT1 = 0;
-
+/*
     // Timer 2 configuration
     TIMSK2 |= 0;
     TCCR2A = 0;
@@ -157,12 +171,23 @@ int main(void) {
     PORTC = 0;
     PORTD = 0;
 
+    cli();
+
+/*
+    while(1) {
+        DBUGON;
+        _delay_ms(1);
+        DBUGOFF;
+        _delay_ms(1);
+    }
+*/
 
 
     t = 0;
     for (y = 0; y < 8; y++) {
         for (x = 0; x < 8; x++) {
-            buffer[y][x] = 255;continue;
+            buffer[y][x] = 255;
+            continue;
             buffer[x][y] = rand() / (RAND_MAX / 254 + 1);
             //buffer[y][x] = t;
             //t = t + 1;
@@ -176,6 +201,34 @@ int main(void) {
         }
     }
 
+/*
+    POWER_MAX;
+    //POWER_MIN;
+    while (1) {
+        for (y = 0; y < 8; y++) {
+            setLine(y, 0b111111111);
+            _delay_ms(200);
+            //_delay_us(250);
+        }
+    }
+*/
+    POWER_MAX;
+    sei();
+    while (1);
+
+    while (1) {
+        drawScreen();
+        continue;
+        for (x = 0; x < 8; x++) {
+            clearScreen();
+            //_delay_us(50);
+            //DBUGON;
+            setPixel(x, 0);
+            PORTB = 255;
+            _delay_us(300);
+            //DBUGOFF;
+        }
+    }
 
 /*
     while (1) {
@@ -203,11 +256,14 @@ PORTB = 0;
             a = 0;
     }
 */
+    //goto paf;
+
     sei();
+    //goto line;
     //while(1);
     //PORTB = 8;
     //setPixel(2, 0);
-    //while (1);
+    while (1);
 
     while (1) {
 
@@ -229,6 +285,34 @@ PORTB = 0;
         }
     }
 
+paf:
+    cli();
+
+//    PORTB = 0;
+
+    //PB1 = 0;
+    //PD6 = 0;
+
+/*
+    DDRA = 128;
+    DDRD = 128;
+    PORTA = 128;
+    PORTD = 128;
+*/
+    //DDRA = 0;
+    PORTB = 254;
+    setLine(0, 255);
+    //PORTB = 255;
+    //setPixel(5, 0);
+    //setPixel(6, 0);
+//    while(1);
+    
+    //setLine(0, 255);
+    //setPixel(5, 0);
+//    PORTB = 255;
+//    PORTA = 255;
+    
+//    while (1);
 
     while (1) {
         for (y = 0; y < 7; y++) {
@@ -248,13 +332,14 @@ PORTB = 0;
         }
     }
 
-
+line:
+    cli();
     while (1) {
         for (y = 0; y < 8; y++) {
             setLine(y, 255);
 
             for (t = 0; t < 255; t++) {
-                _delay_ms(20);
+                _delay_ms(200);
             }
         }
     }
